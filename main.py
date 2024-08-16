@@ -20,8 +20,8 @@ extension_names = {
     "html": "HTML Document",
     "css": "CSS Stylesheet",
     "js": "JavaScript File",
-    "rar": "Compressed Files",
-    "zip": "Compressed Files",
+    "rar": "Compressed Files (RAR)",
+    "zip": "Compressed Files (ZIP)",
     "py": "Python Files",
     "sh": "Bash Scripts"
 }
@@ -54,10 +54,19 @@ def create_dir(my_list, paths):
 def moving_files(dir, ext, base_paths):
     for e in ext:
         allfiles = glob.glob(os.path.join(dir, f'*.{e}*'))
-        print("Moving files: ", os.path.basename(allfiles))
         for p in allfiles:
             dst_path = os.path.join(base_paths[e], os.path.basename(p))
             shutil.move(p, dst_path)
+
+def delete_empty_folders(paths):
+    for root, dirs, files in os.walk(directory, topdown=False):
+        for dir_name in dirs:
+            dir_path = os.path.join(root, dir_name)
+            try:
+                os.rmdir(dir_path)
+                print(f"Deleted empty folder: {dir_path}")
+            except OSError:
+                pass
 
 while True:
     directory = input("Enter the directory path: ").strip()
@@ -70,8 +79,10 @@ while True:
     else:
         print("Invalid path, try again.\n")
 
-# Collect unique file extensions
+delete_empty_folders(directory)
+
 extension = []
+
 for f in os.listdir(directory):
     add_non_repetetive(splitext(f)[1], extension)
 
