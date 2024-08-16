@@ -2,8 +2,8 @@ import os
 from os.path import splitext
 import shutil
 import glob
-
-#file_manager python
+from tkinter import *
+from tkinter import filedialog, messagebox
 
 # Define the dictionary with extensions as keys and descriptive names as values
 extension_names = {
@@ -26,7 +26,7 @@ extension_names = {
     "sh": "Bash Scripts"
 }
 
-def add_non_repetetive(my_string, my_list):
+def add_non_repetitive(my_string, my_list):
     if my_string and my_string[1:] not in my_list:
         my_list.append(my_string[1:])
 
@@ -59,7 +59,7 @@ def moving_files(dir, ext, base_paths):
             shutil.move(p, dst_path)
 
 def delete_empty_folders(paths):
-    for root, dirs, files in os.walk(directory, topdown=False):
+    for root, dirs, files in os.walk(paths, topdown=False):
         for dir_name in dirs:
             dir_path = os.path.join(root, dir_name)
             try:
@@ -68,26 +68,46 @@ def delete_empty_folders(paths):
             except OSError:
                 pass
 
-while True:
-    directory = input("Enter the directory path: ").strip()
-    if os.path.isdir(directory):
-        if len(os.listdir(directory)) == 0:
-            print("The directory is empty, try again.")
-        else:
-            print("\n+ Starting the program...")
-            break  # Exit the loop once a valid directory is found
+def choose_directory():
+    directory = filedialog.askdirectory()
+    if directory:
+        process_directory(directory)
     else:
-        print("Invalid path, try again.\n")
+        messagebox.showwarning("Warning", "No directory selected.")
 
-delete_empty_folders(directory)
+def process_directory(directory):
+    if not os.path.isdir(directory):
+        messagebox.showerror("Error", "The selected path is not a valid directory.")
+        return
 
-extension = []
+    if len(os.listdir(directory)) == 0:
+        messagebox.showinfo("Info", "The directory is empty.")
+        return
 
-for f in os.listdir(directory):
-    add_non_repetetive(splitext(f)[1], extension)
+    print("\n+ Starting the program...")
 
-# Create directories and get paths
-base_paths_returned = create_dir(extension, directory)
+    delete_empty_folders(directory)
 
-# Move files to their respective directories
-moving_files(directory, extension, base_paths_returned)
+    extension = []
+
+    for f in os.listdir(directory):
+        add_non_repetitive(splitext(f)[1], extension)
+
+    # Create directories and get paths
+    base_paths_returned = create_dir(extension, directory)
+
+    # Move files to their respective directories
+    moving_files(directory, extension, base_paths_returned)
+    messagebox.showinfo("Info", "Files have been organized.")
+
+# Setup the Tkinter window
+window = Tk()
+window.title("File Manager")
+
+label = Label(window, text="Click the button to choose a directory")
+label.pack(pady=20)
+
+button = Button(window, text="Choose Directory", command=choose_directory)
+button.pack(pady=20)
+
+window.mainloop()
