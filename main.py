@@ -3,6 +3,8 @@ from os.path import splitext
 import shutil
 import glob
 
+#file_manager python
+
 # Define the dictionary with extensions as keys and descriptive names as values
 extension_names = {
     "txt": "Text Files",
